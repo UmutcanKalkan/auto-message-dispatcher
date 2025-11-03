@@ -29,20 +29,20 @@ func NewMessageRepository(db *mongo.Database) MessageRepository {
 	}
 }
 
-// SeedSampleData database boşsa örnek mesajlar ekler
+// SeedSampleData adds sample messages if database is empty
 func (r *messageRepository) SeedSampleData(ctx context.Context) error {
-	// Mesaj sayısını kontrol et
+	// Check message count
 	count, err := r.collection.CountDocuments(ctx, bson.M{})
 	if err != nil {
 		return fmt.Errorf("failed to count documents: %w", err)
 	}
 
-	// Eğer veri varsa seed etme
+	// Skip seeding if data already exists
 	if count > 0 {
 		return nil
 	}
 
-	// Sample mesajlar oluştur
+	// Create sample messages
 	sampleMessages := []interface{}{
 		&domain.Message{
 			ID:          primitive.NewObjectID(),
@@ -85,12 +85,7 @@ func (r *messageRepository) GetPendingMessages(ctx context.Context, limit int) (
 	if err != nil {
 		return nil, fmt.Errorf("failed to query pending messages: %w", err)
 	}
-	defer func(cursor *mongo.Cursor, ctx context.Context) {
-		err := cursor.Close(ctx)
-		if err != nil {
-
-		}
-	}(cursor, ctx)
+	defer cursor.Close(ctx)
 
 	var messages []*domain.Message
 	if err := cursor.All(ctx, &messages); err != nil {
@@ -108,12 +103,7 @@ func (r *messageRepository) GetSentMessages(ctx context.Context) ([]*domain.Mess
 	if err != nil {
 		return nil, fmt.Errorf("failed to query sent messages: %w", err)
 	}
-	defer func(cursor *mongo.Cursor, ctx context.Context) {
-		err := cursor.Close(ctx)
-		if err != nil {
-
-		}
-	}(cursor, ctx)
+	defer cursor.Close(ctx)
 
 	var messages []*domain.Message
 	if err := cursor.All(ctx, &messages); err != nil {

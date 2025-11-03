@@ -9,7 +9,7 @@ import (
 	"github.com/UmutcanKalkan/auto-message-dispatcher/pkg/logger"
 )
 
-// Scheduler belirli aralıklarla mesaj gönderimini yönetir
+// Scheduler manages message sending at specified intervals
 type Scheduler struct {
 	messageService service.MessageService
 	interval       time.Duration
@@ -102,7 +102,7 @@ func (s *Scheduler) run() {
 
 	s.logger.Info("Scheduler loop started")
 
-	// İlk batch'i hemen işle
+	// Process first batch immediately
 	s.processBatch()
 
 	for {

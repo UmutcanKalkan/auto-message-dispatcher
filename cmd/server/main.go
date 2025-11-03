@@ -21,7 +21,7 @@ import (
 )
 
 func main() {
-	// .env dosyasını yükle
+	// Load .env file
 	if err := godotenv.Load(); err != nil {
 		fmt.Println("Warning: .env file not found, using environment variables")
 	}
@@ -41,7 +41,7 @@ func main() {
 		log.Error("Configuration validation failed: %v", err)
 		os.Exit(1)
 	}
-	log.Info("Configuration validated successfully")
+	log.Info("Configuration validated")
 
 	log.Info("Connecting to MongoDB...")
 	db, err := database.NewMongoDB(cfg.Database.URI, cfg.Database.DBName)
@@ -49,19 +49,19 @@ func main() {
 		log.Error("Failed to connect to MongoDB: %v", err)
 		os.Exit(1)
 	}
-	log.Info("MongoDB connected successfully")
+	log.Info("MongoDB connected")
 
 	ctx := context.Background()
 	messageRepo := repository.NewMessageRepository(db)
 
-	// Database boşsa örnek veri ekle
+	// Seed sample data if database is empty
 	log.Info("Checking database for sample data...")
 	if err := messageRepo.(interface {
 		SeedSampleData(context.Context) error
 	}).SeedSampleData(ctx); err != nil {
 		log.Error("Failed to seed sample data: %v", err)
 	} else {
-		// Mesaj sayısını kontrol et
+		// Check pending message count
 		pending, _ := messageRepo.GetPendingMessages(ctx, 100)
 		if len(pending) > 0 {
 			log.Info("Database initialized with %d sample messages", len(pending))
@@ -80,13 +80,8 @@ func main() {
 		log.Error("Failed to connect to Redis: %v", err)
 		os.Exit(1)
 	}
-	defer func(redisClient *redis.Client) {
-		err := redisClient.Close()
-		if err != nil {
-
-		}
-	}(redisClient)
-	log.Info("Redis connected successfully")
+	defer redisClient.Close()
+	log.Info("Redis connected")
 
 	webhookClient := service.NewWebhookClient(
 		cfg.Webhook.URL,
@@ -131,10 +126,7 @@ func main() {
 
 	mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
-		_, err := w.Write([]byte("OK"))
-		if err != nil {
-			return
-		}
+		w.Write([]byte("OK"))
 	})
 
 	mux.HandleFunc("/swagger", func(w http.ResponseWriter, r *http.Request) {
@@ -167,7 +159,7 @@ func main() {
 		}
 	}()
 
-	log.Info("Server started successfully on port: %s", cfg.Server.Port)
+	log.Info("Server ready on port: %s", cfg.Server.Port)
 	log.Info("API endpoints:")
 	log.Info("  POST   /api/scheduler/start")
 	log.Info("  POST   /api/scheduler/stop")

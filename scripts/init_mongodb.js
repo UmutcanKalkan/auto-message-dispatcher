@@ -1,12 +1,12 @@
 // MongoDB initialization script
-// Bu script MongoDB container'ı başladığında otomatik çalışır
+// This script runs automatically when MongoDB container starts
 
 db = db.getSiblingDB('message_dispatcher');
 
-// Messages collection oluştur
+// Create messages collection
 db.createCollection('messages');
 
-// Örnek test mesajları ekle
+// Insert sample test messages
 db.messages.insertMany([
     {
         phone_number: "+905551111111",

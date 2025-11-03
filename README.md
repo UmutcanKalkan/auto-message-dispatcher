@@ -1,68 +1,91 @@
 # Auto Message Dispatcher
 
-Otomatik mesaj gönderim sistemi.
+An automatic message sending system that processes and sends messages from a database at scheduled intervals.
 
-## Gereksinimler
+## Requirements
 
 - Go 1.20+
 - MongoDB
 - Redis
-- Docker & Docker Compose (opsiyonel)
+- Docker & Docker Compose (optional)
 
-## Kurulum
+## Installation
 
-### Docker ile (Test Edilmedi)
+### With Docker
 
 ```bash
-# Servisleri başlat
+# Start all services
 docker-compose up -d
 
-# API erişilebilir: http://localhost:8080
+# API available at: http://localhost:8080
 # Swagger UI: http://localhost:8080/swagger
 ```
 
-### Manuel Kurulum
+### Manual Setup
 
 ```bash
-# Dependencies
+# Download dependencies
 go mod download
 
-# .env dosyasını oluştur
+# Create .env file
 cp .env.example .env
-# .env dosyasını düzenle ve kendi değerlerini gir
+# Edit .env and add your configuration values
 
-# MongoDB başlat (local)
+# Start MongoDB (local)
 mongod
 
-# Redis başlat (opsiyonel)
+# Start Redis (optional)
 redis-server
 
-# Uygulamayı çalıştır
+# Run the application
 go run cmd/server/main.go
 ```
 
 ## API Endpoints
 
-### Scheduler Kontrolü
-- `POST /scheduler/start` - Otomatik gönderimi başlat
-- `POST /scheduler/stop` - Otomatik gönderimi durdur
-- `GET /scheduler/status` - Durum kontrolü
+### Scheduler Control
+- `POST /api/scheduler/start` - Start automatic message sending
+- `POST /api/scheduler/stop` - Stop automatic message sending
+- `GET /api/scheduler/status` - Check scheduler status
 
-### Mesaj İşlemleri
-- `GET /messages/sent` - Gönderilen mesajları listele
-- `POST /messages` - Yeni mesaj oluştur
+### Message Operations
+- `GET /api/messages/sent` - List sent messages
+- `POST /api/messages` - Create new message
 
-## Konfigürasyon
+## Configuration
 
-`.env` dosyasını `.env.example` dosyasından kopyalayarak oluşturun ve kendi değerlerinizi girin.
+Create a `.env` file from `.env.example` and configure your values.
 
-Önemli değişkenler:
-- `WEBHOOK_URL`: Mesaj gönderim endpoint'i
+Important variables:
+- `WEBHOOK_URL`: Message sending endpoint
 - `WEBHOOK_AUTH_KEY`: API authentication key
-- `SCHEDULER_INTERVAL`: Mesaj gönderim aralığı (default: 2m)
-- `SCHEDULER_BATCH_SIZE`: Her seferde kaç mesaj (default: 2)
+- `SCHEDULER_INTERVAL`: Message sending interval (default: 2m)
+- `SCHEDULER_BATCH_SIZE`: Number of messages per batch (default: 2)
+- `SCHEDULER_AUTO_START`: Auto-start on deployment (default: true)
 
-## Swagger Dokümantasyonu
+## Features
 
-API dokümantasyonuna erişim: `http://localhost:8080/swagger`
+- Custom scheduler implementation (no external cron packages)
+- Automatic message sending on deployment
+- Prevents duplicate message sending
+- Redis caching for sent messages (bonus feature)
+- Retry mechanism with exponential backoff
+- Configuration validation on startup
+- Swagger/OpenAPI documentation
+- Docker support with health checks
+
+## Swagger Documentation
+
+Access API documentation at: `http://localhost:8080/swagger`
+
+## Architecture
+
+The project follows clean architecture principles with clear separation of concerns:
+
+- **Domain**: Core business entities and logic
+- **Repository**: Data access layer
+- **Service**: Business logic and external integrations
+- **Handler**: HTTP request handlers
+- **Scheduler**: Custom cron-like implementation
+- **Middleware**: Cross-cutting concerns (CORS, logging)
 

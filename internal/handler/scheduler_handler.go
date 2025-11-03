@@ -44,7 +44,7 @@ func (h *SchedulerHandler) Start(w http.ResponseWriter, r *http.Request) {
 
 	h.sendResponse(w, Response{
 		Success: true,
-		Message: "Scheduler started successfully",
+		Message: "started",
 	})
 }
 
@@ -69,7 +69,7 @@ func (h *SchedulerHandler) Stop(w http.ResponseWriter, r *http.Request) {
 
 	h.sendResponse(w, Response{
 		Success: true,
-		Message: "Scheduler stopped successfully",
+		Message: "stopped",
 	})
 }
 
@@ -87,7 +87,7 @@ func (h *SchedulerHandler) Status(w http.ResponseWriter, r *http.Request) {
 
 	h.sendResponse(w, Response{
 		Success: true,
-		Message: "Scheduler status retrieved successfully",
+		Message: "ok",
 		Data: map[string]interface{}{
 			"status":  status,
 			"running": isRunning,
@@ -98,20 +98,14 @@ func (h *SchedulerHandler) Status(w http.ResponseWriter, r *http.Request) {
 func (h *SchedulerHandler) sendResponse(w http.ResponseWriter, response Response) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	err := json.NewEncoder(w).Encode(response)
-	if err != nil {
-		return
-	}
+	json.NewEncoder(w).Encode(response)
 }
 
 func (h *SchedulerHandler) sendError(w http.ResponseWriter, message string, statusCode int) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(statusCode)
-	err := json.NewEncoder(w).Encode(Response{
+	json.NewEncoder(w).Encode(Response{
 		Success: false,
 		Message: message,
 	})
-	if err != nil {
-		return
-	}
 }

@@ -58,10 +58,6 @@ docker-clean: ## Remove all containers, volumes, and images
 	$(DOCKER_COMPOSE) down -v
 	docker rmi $(APP_NAME):latest 2>/dev/null || true
 
-migrate-up: ## Run database migrations
-	@echo "Running migrations..."
-	psql -h localhost -U postgres -d message_dispatcher -f migrations/001_create_messages_table.sql
-
 dev: docker-up ## Start development environment
 	@echo "Development environment started!"
 	@echo "API available at: http://localhost:8080"

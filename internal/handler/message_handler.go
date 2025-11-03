@@ -36,7 +36,7 @@ func (h *MessageHandler) GetSentMessages(w http.ResponseWriter, r *http.Request)
 
 	h.sendResponse(w, Response{
 		Success: true,
-		Message: "Sent messages retrieved successfully",
+		Message: "ok",
 		Data: map[string]interface{}{
 			"messages": messages,
 			"count":    len(messages),
@@ -64,7 +64,7 @@ func (h *MessageHandler) CreateMessage(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 	h.sendResponse(w, Response{
 		Success: true,
-		Message: "Message created successfully",
+		Message: "created",
 	})
 }
 
