@@ -1,0 +1,176 @@
+openapi: 3.0.3
+info:
+  title: Message Dispatcher API
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8080
+
+tags:
+  - name: Scheduler
+  - name: Messages
+  - name: Health
+
+paths:
+  /health:
+    get:
+      tags:
+        - Health
+      summary: Health check
+      responses:
+        '200':
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+
+  /api/scheduler/start:
+    post:
+      tags:
+        - Scheduler
+      summary: Start scheduler
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        '500':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+
+  /api/scheduler/stop:
+    post:
+      tags:
+        - Scheduler
+      summary: Stop scheduler
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        '500':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+
+  /api/scheduler/status:
+    get:
+      tags:
+        - Scheduler
+      summary: Get status
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+
+  /api/messages/sent:
+    get:
+      tags:
+        - Messages
+      summary: Get sent messages
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        '500':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+
+  /api/messages:
+    post:
+      tags:
+        - Messages
+      summary: Create message
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateMessageRequest'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        '500':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+
+components:
+  schemas:
+    Response:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        data:
+          type: object
+
+    Message:
+      type: object
+      properties:
+        id:
+          type: string
+        phone_number:
+          type: string
+        content:
+          type: string
+          maxLength: 160
+        status:
+          type: string
+          enum: [pending, sent, failed]
+        created_at:
+          type: string
+          format: date-time
+        sent_at:
+          type: string
+          format: date-time
+          nullable: true
+        message_id:
+          type: string
+          nullable: true
+
+    CreateMessageRequest:
+      type: object
+      required:
+        - phone_number
+        - content
+      properties:
+        phone_number:
+          type: string
+        content:
+          type: string
+          maxLength: 160
+
