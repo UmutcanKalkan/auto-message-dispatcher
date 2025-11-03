@@ -60,6 +60,8 @@ func main() {
 		cfg.Webhook.URL,
 		cfg.Webhook.AuthKey,
 		cfg.Webhook.Timeout,
+		cfg.Webhook.MaxRetries,
+		cfg.Webhook.RetryDelay,
 	)
 
 	messageService := service.NewMessageService(

@@ -7,7 +7,6 @@ import (
 	"time"
 )
 
-// Config uygulama ayarlarını tutar
 type Config struct {
 	Server    ServerConfig
 	Database  DatabaseConfig
@@ -42,9 +41,11 @@ type SchedulerConfig struct {
 }
 
 type WebhookConfig struct {
-	URL     string
-	AuthKey string
-	Timeout time.Duration
+	URL        string
+	AuthKey    string
+	Timeout    time.Duration
+	MaxRetries int
+	RetryDelay time.Duration
 }
 
 func Load() (*Config, error) {
@@ -71,9 +72,11 @@ func Load() (*Config, error) {
 			AutoStartEnabled: getBoolEnv("SCHEDULER_AUTO_START", true),
 		},
 		Webhook: WebhookConfig{
-			URL:     getEnv("WEBHOOK_URL", ""),
-			AuthKey: getEnv("WEBHOOK_AUTH_KEY", ""),
-			Timeout: getDurationEnv("WEBHOOK_TIMEOUT", 30*time.Second),
+			URL:        getEnv("WEBHOOK_URL", ""),
+			AuthKey:    getEnv("WEBHOOK_AUTH_KEY", ""),
+			Timeout:    getDurationEnv("WEBHOOK_TIMEOUT", 30*time.Second),
+			MaxRetries: getIntEnv("WEBHOOK_MAX_RETRIES", 3),
+			RetryDelay: getDurationEnv("WEBHOOK_RETRY_DELAY", 1*time.Second),
 		},
 	}
 
