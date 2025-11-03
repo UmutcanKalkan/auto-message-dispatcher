@@ -30,8 +30,8 @@ WORKDIR /root/
 # Copy the binary from builder
 COPY --from=builder /app/main .
 
-# Copy migrations
-COPY --from=builder /app/migrations ./migrations
+# Copy API documentation (Swagger)
+COPY --from=builder /app/api ./api
 
 # Expose port
 EXPOSE 8080

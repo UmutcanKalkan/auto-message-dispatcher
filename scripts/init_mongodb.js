@@ -6,11 +6,6 @@ db = db.getSiblingDB('message_dispatcher');
 // Messages collection oluştur
 db.createCollection('messages');
 
-// Index'ler oluştur (performans için)
-db.messages.createIndex({ "status": 1, "created_at": 1 });
-db.messages.createIndex({ "status": 1, "sent_at": -1 });
-db.messages.createIndex({ "message_id": 1 }, { sparse: true });
-
 // Örnek test mesajları ekle
 db.messages.insertMany([
     {
@@ -46,6 +41,6 @@ db.messages.insertMany([
 ]);
 
 print("MongoDB initialized successfully!");
-print("Collection 'messages' created with indexes");
+print("Collection 'messages' created");
 print("5 sample messages inserted");
 
