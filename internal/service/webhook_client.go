@@ -83,7 +83,12 @@ func (w *webhookClient) doSendMessage(ctx context.Context, phoneNumber, content 
 	if err != nil {
 		return nil, fmt.Errorf("failed to send request: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+
+		}
+	}(resp.Body)
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {

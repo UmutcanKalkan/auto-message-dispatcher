@@ -29,6 +29,52 @@ func NewMessageRepository(db *mongo.Database) MessageRepository {
 	}
 }
 
+// SeedSampleData database boşsa örnek mesajlar ekler
+func (r *messageRepository) SeedSampleData(ctx context.Context) error {
+	// Mesaj sayısını kontrol et
+	count, err := r.collection.CountDocuments(ctx, bson.M{})
+	if err != nil {
+		return fmt.Errorf("failed to count documents: %w", err)
+	}
+
+	// Eğer veri varsa seed etme
+	if count > 0 {
+		return nil
+	}
+
+	// Sample mesajlar oluştur
+	sampleMessages := []interface{}{
+		&domain.Message{
+			ID:          primitive.NewObjectID(),
+			PhoneNumber: "+905551111111",
+			Content:     "Test mesaji 1 - Insider Project",
+			Status:      domain.StatusPending,
+			CreatedAt:   time.Now(),
+		},
+		&domain.Message{
+			ID:          primitive.NewObjectID(),
+			PhoneNumber: "+905552222222",
+			Content:     "Test mesaji 2 - Welcome to Insider",
+			Status:      domain.StatusPending,
+			CreatedAt:   time.Now(),
+		},
+		&domain.Message{
+			ID:          primitive.NewObjectID(),
+			PhoneNumber: "+905553333333",
+			Content:     "Test mesaji 3 - Siparişiniz hazır",
+			Status:      domain.StatusPending,
+			CreatedAt:   time.Now(),
+		},
+	}
+
+	_, err = r.collection.InsertMany(ctx, sampleMessages)
+	if err != nil {
+		return fmt.Errorf("failed to insert sample data: %w", err)
+	}
+
+	return nil
+}
+
 func (r *messageRepository) GetPendingMessages(ctx context.Context, limit int) ([]*domain.Message, error) {
 	filter := bson.M{"status": domain.StatusPending}
 	opts := options.Find().

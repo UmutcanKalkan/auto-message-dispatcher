@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"os"
 	"os/signal"
@@ -16,9 +17,15 @@ import (
 	"github.com/UmutcanKalkan/auto-message-dispatcher/pkg/database"
 	"github.com/UmutcanKalkan/auto-message-dispatcher/pkg/logger"
 	"github.com/UmutcanKalkan/auto-message-dispatcher/pkg/redis"
+	"github.com/joho/godotenv"
 )
 
 func main() {
+	// .env dosyasını yükle
+	if err := godotenv.Load(); err != nil {
+		fmt.Println("Warning: .env file not found, using environment variables")
+	}
+
 	log := logger.New()
 	log.Info("Starting application...")
 
@@ -28,6 +35,14 @@ func main() {
 		os.Exit(1)
 	}
 
+	// Configuration validation
+	log.Info("Validating configuration...")
+	if err := cfg.Validate(); err != nil {
+		log.Error("Configuration validation failed: %v", err)
+		os.Exit(1)
+	}
+	log.Info("Configuration validated successfully")
+
 	log.Info("Connecting to MongoDB...")
 	db, err := database.NewMongoDB(cfg.Database.URI, cfg.Database.DBName)
 	if err != nil {
@@ -35,6 +50,25 @@ func main() {
 		os.Exit(1)
 	}
 	log.Info("MongoDB connected successfully")
+
+	ctx := context.Background()
+	messageRepo := repository.NewMessageRepository(db)
+
+	// Database boşsa örnek veri ekle
+	log.Info("Checking database for sample data...")
+	if err := messageRepo.(interface {
+		SeedSampleData(context.Context) error
+	}).SeedSampleData(ctx); err != nil {
+		log.Error("Failed to seed sample data: %v", err)
+	} else {
+		// Mesaj sayısını kontrol et
+		pending, _ := messageRepo.GetPendingMessages(ctx, 100)
+		if len(pending) > 0 {
+			log.Info("Database initialized with %d sample messages", len(pending))
+		} else {
+			log.Info("Database already contains data")
+		}
+	}
 
 	log.Info("Connecting to Redis...")
 	redisClient, err := redis.NewRedisClient(
@@ -53,8 +87,6 @@ func main() {
 		}
 	}(redisClient)
 	log.Info("Redis connected successfully")
-
-	messageRepo := repository.NewMessageRepository(db)
 
 	webhookClient := service.NewWebhookClient(
 		cfg.Webhook.URL,
@@ -105,7 +137,15 @@ func main() {
 		}
 	})
 
+	mux.HandleFunc("/swagger", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "./api/index.html")
+	})
+
 	mux.HandleFunc("/swagger/", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "./api/index.html")
+	})
+
+	mux.HandleFunc("/swagger.yaml", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "./api/swagger.yaml")
 	})
 

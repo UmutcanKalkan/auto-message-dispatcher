@@ -83,6 +83,26 @@ func Load() (*Config, error) {
 	return config, nil
 }
 
+func (c *Config) Validate() error {
+	if c.Webhook.URL == "" {
+		return fmt.Errorf("WEBHOOK_URL is required")
+	}
+
+	if c.Webhook.AuthKey == "" {
+		return fmt.Errorf("WEBHOOK_AUTH_KEY is required")
+	}
+
+	if c.Scheduler.BatchSize < 1 {
+		return fmt.Errorf("SCHEDULER_BATCH_SIZE must be at least 1")
+	}
+
+	if c.Database.URI == "" {
+		return fmt.Errorf("MONGO_URI is required")
+	}
+
+	return nil
+}
+
 func (c *RedisConfig) GetRedisAddr() string {
 	return fmt.Sprintf("%s:%s", c.Host, c.Port)
 }
