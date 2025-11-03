@@ -1,17 +1,17 @@
 # Auto Message Dispatcher
 
-Otomatik mesaj gönderim sistemi - Go ile geliştirilmiş clean architecture projesi.
+Otomatik mesaj gönderim sistemi.
 
 ## Gereksinimler
 
 - Go 1.20+
 - MongoDB
-- Redis (opsiyonel)
+- Redis
 - Docker & Docker Compose (opsiyonel)
 
 ## Kurulum
 
-### Docker ile
+### Docker ile (Test Edilmedi)
 
 ```bash
 # Servisleri başlat
@@ -61,16 +61,6 @@ go run cmd/server/main.go
 - `WEBHOOK_AUTH_KEY`: API authentication key
 - `SCHEDULER_INTERVAL`: Mesaj gönderim aralığı (default: 2m)
 - `SCHEDULER_BATCH_SIZE`: Her seferde kaç mesaj (default: 2)
-
-## Test
-
-```bash
-# Tüm testleri çalıştır
-go test ./...
-
-# Build
-make build
-```
 
 ## Swagger Dokümantasyonu
 
